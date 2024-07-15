@@ -1,3 +1,4 @@
+from datetime import timedelta
 from pathlib import Path
 from decouple import config
 
@@ -26,8 +27,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'bikes',
-    'rest_framework'
+    'rest_framework',
+    'rest_framework_simplejwt',
+    # 'rest_framework_simplejwt.token_blacklist',
+    'corsheaders',
+    'accounts'
 ]
 
 MIDDLEWARE = [
@@ -38,7 +42,14 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    #This code snippet adds  CorsMiddleware to the list of  middleware used by Django
 ]
+
+
+CORS_ORIGIN_ALLOW_ALL = True
+#This setting  enables  Cross-Origin Resource sharing(CORS) for all origins
+
 
 ROOT_URLCONF = 'mzeebikes.urls'
 
@@ -76,7 +87,19 @@ DATABASES = {
     }
 }
 
+REST_FRAMEWORK = {
+     'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+      ],
+}
 
+SIMPLE_JWT = {
+     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=20),
+     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+     'ROTATE_REFRESH_TOKENS':True,
+     'BLACKLIST_AFTER_ROTATION': True
+}
+#   conffigures settings for simple JWT libray in Django
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
@@ -117,3 +140,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# settings.py
+
+
+AUTH_USER_MODEL  = 'accounts.User'
