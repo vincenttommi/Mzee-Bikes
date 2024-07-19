@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .serializers import UserSerializer,BicycleSerializer
-from .models import User,Bicycle
+from .serializers import UserSerializer,BicycleSerializer,CartItemSerializer,CartSerializer
+from .models import User,Bicycle,Cart,CartItem
 from rest_framework.exceptions import AuthenticationFailed
 import jwt, datetime
 from django.views.decorators.csrf import csrf_exempt
@@ -129,5 +129,95 @@ def delete_bicycle(request,pk):
     return Response({'message': 'Bicycle deleted sucessfully'}, status=status.HTTP_204_NO_CONTENT)   
 
 
+@api_view(['GET','POST'])
+def  cart_list(request):
+    if request.method  == 'GET':
+        carts = Cart.objects.all()
+        serializer  = CartSerializer(carts, many=True)
+        return  Response(serializer.data)
+    
+
+    elif request.method == 'POST':
+        serializer = CartSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+#retieving getting, updating and  Deleting a Cart
+@api_view(['GET','PUT','DELETE'])
+def cart_detail(request, pk):
+    try:
+        cart = Cart.objects.get(pk=pk)
+    except Cart.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+
+    if request.method == 'GET':
+        serializer = CartSerializer(cart)
+        return Response(serializer.data)
+
+    elif request.method  == 'PUT':
+        serializer  = CartSerializer(cart, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    elif  request.method  == 'DELETE':
+        cart.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+#listing and creating cartitems
+
+
+@api_view(['GET','POST'])
+def  cartitem_list(request):
+    if request.method  == 'GET':
+        cartitems  = CartItem.objects.all()
+        serializer  = CartSerializer(cartitems, many=True)
+        return Response(serializer.data)
+    
+    elif request.method == 'POST':
+        serializer = CartItemSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+    
+
+
+
+#Retreiving,Updating and deletin a Cartitem
+
+@api_view(['GET','PUT','DELETE'])
+def  cartitem_detail(request, pk):
+    try:
+        cartitem = CartItem.objects.get(pk=pk)
+    except CartItem.DoesNotExist:
+        return  Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method  == 'GET':
+        serializer = CartItemSerializer(cartitem)
+        return Response(serializer.data)
+
+
+    elif request.method == 'PUT':      
+        serializer  = CartItemSerializer(cartitem, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    elif request.method  == 'DELETE':
+        cartitem.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+     
 
 
